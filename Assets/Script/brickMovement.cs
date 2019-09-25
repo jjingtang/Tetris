@@ -25,34 +25,34 @@ public class brickMovement : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W))
         {
             //transform.RotateAround(transform.TransformPoint(rotationPoint), new Vector3(0, 0, 1), 90);
-            transform.Rotate(0, 0, 90);
+            transform.Rotate(0, 0, 90, Space.World);
             if (!isHitBorder())
             {
-                transform.Rotate(0, 0, -90);
+                transform.Rotate(0, 0, -90, Space.World);
                 //transform.RotateAround(transform.TransformPoint(rotationPoint),new Vector3(0,0,1), -90);
             }
         }
         if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A))
         {
-            transform.Translate(-1, 0, 0);
+            transform.Translate(-1, 0, 0, Space.World);
             if (!isHitBorder())
-                transform.Translate(1, 0, 0);
+                transform.Translate(1, 0, 0, Space.World);
         }
         if(Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D))
         {
-            transform.Translate(1, 0, 0);
+            transform.Translate(1, 0, 0, Space.World);
             if (!isHitBorder())
-                transform.Translate(-1, 0, 0);
+                transform.Translate(-1, 0, 0,Space.World);
         }
 
         if(Time.time - lastTime > (Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.S) ? 0.5f / 5: 0.5f))
         {
-            transform.Translate(0, gravity, 0);
+            transform.Translate(0, gravity, 0,Space.World);
             lastTime = Time.time;
             if (!isHitBorder())
             {
                 float f = Mathf.Abs(gravity);
-                transform.Translate(0, f, 0);
+                transform.Translate(0, f, 0,Space.World);
             }
         }
     }
