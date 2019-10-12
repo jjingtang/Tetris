@@ -13,6 +13,8 @@ public class brickMovement : MonoBehaviour
 
     private Vector3 rotationPoint;
 
+    private static Transform[,] grid = new Transform[borderX, borderY]; //store the x and y value of the bricks into the array 
+
     // Start is called before the first frame update
     void Start()
     {
@@ -53,6 +55,11 @@ public class brickMovement : MonoBehaviour
             {
                 float f = Mathf.Abs(gravity);
                 transform.Translate(0, f, 0,Space.World);
+
+                AddToGrid(); //add the brick position to the grid array
+                CheckLine();
+                this.enabled = false; //disable the script so the user cannot move it anymore
+                FindObjectOfType<brickManager>().GenerateNewBrick(); //call the function to generate a new one
             }
         }
     }
@@ -67,7 +74,77 @@ public class brickMovement : MonoBehaviour
             {
                 return false;
             }
+
+            if (grid[x, y] != null) //if the bricks collide with other bricks
+            {
+                return false;
+            }
         }
         return true;
+    }
+    void AddToGrid()
+    {
+        foreach (Transform children in transform)
+        {
+            //loop all the children and add them to the grid array
+            int x = Mathf.RoundToInt(children.transform.position.x); //get the x of the gameObject
+            int y = Mathf.RoundToInt(children.transform.position.y); //get the y of the gameObject
+
+            grid[x, y] = children;
+            //Debug.Log(grid[x, y]);
+        }
+    }
+
+    void CheckLine()
+    {
+        for (int i = borderY - 1; i >= 0; i--)
+        {
+            if (completeLine(i)) //if the line is full, then clear the line
+            {
+                Debug.Log("clear line");
+                ClearLine(i); //clear the line
+                Drop(i); //the bricks above this line will drop
+            }
+        }
+    }
+
+    bool completeLine(int i)
+    {
+        for (int a = 0; a < borderX; a++)
+        {
+            if (grid[a, i] == null)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    void ClearLine(int i)
+    {
+        for (int a = 0; a < borderX; a++)
+        {
+            if (grid[a, i] == null)
+            {
+                Destroy(grid[a, i].gameObject); //destory the gameobject on this line
+                grid[a, i] = null; //reset the array
+            }
+        }
+    }
+
+    void Drop(int i)
+    {
+        for (int a = i; a < borderY; a++) //loop all the elements
+        {
+            for (int b = 0; b < borderX; b++)
+            {
+                if (grid[b, a] != null)
+                {
+                    grid[b, a - 1] = grid[b, a];
+                    grid[b, a] = null;
+                    grid[b, a - 1].transform.position -= new Vector3(0, 1, 0);
+                }
+            }
+        }
     }
 }

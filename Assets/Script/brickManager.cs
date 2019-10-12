@@ -9,7 +9,7 @@ public class brickManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        generateNewBrick();
+        GenerateNewBrick();
     }
 
     // Update is called once per frame
@@ -18,7 +18,7 @@ public class brickManager : MonoBehaviour
         
     }
 
-    public void generateNewBrick()
+    public void GenerateNewBrick()
     {
         //generate a new brick from the array (7 types of bricks) by using a random number to pick a random type of brick and initate at the empty object "newBrick" position 
         Instantiate(bricks[Random.Range(0, bricks.Length)], transform.position, Quaternion.identity);
