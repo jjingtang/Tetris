@@ -9,6 +9,10 @@ public class Menu : MonoBehaviour
     {
         SceneManager.LoadScene(1);
     }
+    public void goMenu()
+    {
+        SceneManager.LoadScene("MenuScene");
+    }
     public void designInnovation()
     {
         //Debug.Log("load design innovation scene");
