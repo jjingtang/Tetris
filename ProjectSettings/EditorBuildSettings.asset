@@ -12,6 +12,9 @@ EditorBuildSettings:
     path: Assets/Scenes/GameScene.unity
     guid: da0ff0f542bfa634e98675c0e2d70427
   - enabled: 1
-    path: Assets/Scenes/DesignInnovation.unity
+    path: Assets/Scenes/DesignInnovation222.unity
     guid: 311631b655c7cff4e84c6ae7f9655749
+  - enabled: 1
+    path: Assets/Scenes/DesignInnovation.unity
+    guid: 85cd8c057d035ac48aea8e9968eeae4d
   m_configObjects: {}
