@@ -1,38 +1,61 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class brickMovement : MonoBehaviour
 {
+    //private float gravity = -1;
     private float gravity = -1;
     private float acceleration; //adding speed to the gravity
 
     private float lastTime;
 
-    private static int borderX = 15, borderY = 20;
+    private static int borderX = 12, borderY = 20;
 
     private Vector3 rotationPoint;
 
     private static Transform[,] grid = new Transform[borderX, borderY]; //store the x and y value of the bricks into the array 
+    
+
 
     // Start is called before the first frame update
     void Start()
     {
+         
+        if (!isHitBorder())
+        {
+            Debug.Log("Game Over");
+            UIManager.Instacnce.GameOver();
+            Destroy(gameObject);
+        }
         acceleration = 0.5f;
     }
+
 
     // Update is called once per frame
     void Update()
     {
+        float floatNormalSpeed = GameManager._instance.FloatNormalSpeed; //game speed
+
         if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W)) //if pressing the up arrow or w, the game object will rotate
         {
+            if (GameManager._instance.scene.name == "DesignInnovation")
+            {
+                Sound._instance.PlayAudioByName("rotation");
+            }
+            /*
             //transform.RotateAround(transform.TransformPoint(rotationPoint), new Vector3(0, 0, 1), 90);
             transform.Rotate(0, 0, 90, Space.World); //it needs to rotate in space world, otherwise it will be messy
             if (!isHitBorder())
             {
                 transform.Rotate(0, 0, -90, Space.World); //if it hit the border, then rotate back to ensure it won't hit the border
                 //transform.RotateAround(transform.TransformPoint(rotationPoint),new Vector3(0,0,1), -90);
-            }
+            }*/
+            //rotate !
+            transform.RotateAround(transform.TransformPoint(rotationPoint), new Vector3(0, 0, 1), 90);
+            if (!isHitBorder())
+                transform.RotateAround(transform.TransformPoint(rotationPoint), new Vector3(0, 0, 1), -90);
         }
         if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A)) //if pressing the left arrow or a, the game object will move left (x-axis)
         {
@@ -47,20 +70,29 @@ public class brickMovement : MonoBehaviour
                 transform.Translate(-1, 0, 0,Space.World);
         }
 
-        if(Time.time - lastTime > (Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.S) ? 0.5f / 5: 0.5f)) //if pressing the down arrow or s, the game object will drop down quickly
+        if(Time.time - lastTime > (Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.S) ? floatNormalSpeed / 5: floatNormalSpeed)) //if pressing the down arrow or s, the game object will drop down quickly
         {
+            //return;
             transform.Translate(0, gravity, 0,Space.World);
-            lastTime = Time.time;
+            //transform.position += new Vector3(0, -1, 0);
+
             if (!isHitBorder())
             {
+                if (GameManager._instance.scene.name == "DesignInnovation")
+                {
+                    Sound._instance.PlayAudioByName("collision");
+                }
                 float f = Mathf.Abs(gravity);
-                transform.Translate(0, f, 0,Space.World);
+                //transform.Translate(0, f, 0,Space.World);
+                transform.position -= new Vector3(0, -1, 0);
 
                 AddToGrid(); //add the brick position to the grid array
                 CheckLine();
+
                 this.enabled = false; //disable the script so the user cannot move it anymore
                 FindObjectOfType<brickManager>().GenerateNewBrick(); //call the function to generate a new one
             }
+            lastTime = Time.time;
         }
     }
 
@@ -70,7 +102,7 @@ public class brickMovement : MonoBehaviour
         {
             int x = Mathf.RoundToInt(children.transform.position.x); //get the x of the gameObject
             int y = Mathf.RoundToInt(children.transform.position.y); //get the y of the gameObject
-            if (x<=0 || x >= borderX || y<=0|| y >= borderY)
+            if (x< 0 || x >= borderX || y< 0|| y >= borderY)
             {
                 return false;
             }
@@ -91,12 +123,14 @@ public class brickMovement : MonoBehaviour
             int y = Mathf.RoundToInt(children.transform.position.y); //get the y of the gameObject
 
             grid[x, y] = children;
-            //Debug.Log(grid[x, y]);
+            //Debug.Log(x+","+ y);
         }
     }
 
     void CheckLine()
     {
+        
+        Debug.Log("CheckLine()");
         for (int i = borderY - 1; i >= 0; i--)
         {
             if (completeLine(i)) //if the line is full, then clear the line
@@ -110,6 +144,7 @@ public class brickMovement : MonoBehaviour
 
     bool completeLine(int i)
     {
+        Debug.Log("completeLine(int i)");
         for (int a = 0; a < borderX; a++)
         {
             if (grid[a, i] == null)
@@ -122,14 +157,16 @@ public class brickMovement : MonoBehaviour
 
     void ClearLine(int i)
     {
+        Debug.Log("ClearLine(int i)");
         for (int a = 0; a < borderX; a++)
         {
-            if (grid[a, i] == null)
-            {
+            //if (grid[a, i] == null)
+            //{
                 Destroy(grid[a, i].gameObject); //destory the gameobject on this line
                 grid[a, i] = null; //reset the array
-            }
         }
+        UIManager.Instacnce.intScore += borderX; //calculate the score
+        UIManager.Instacnce.UpdateTxtScore();
     }
 
     void Drop(int i)
@@ -140,6 +177,7 @@ public class brickMovement : MonoBehaviour
             {
                 if (grid[b, a] != null)
                 {
+                    //Debug.Log("b=" + b + "a =" + a);
                     grid[b, a - 1] = grid[b, a];
                     grid[b, a] = null;
                     grid[b, a - 1].transform.position -= new Vector3(0, 1, 0);
